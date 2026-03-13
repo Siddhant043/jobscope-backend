@@ -1,0 +1,1 @@
+ALTER TABLE "matches" ADD CONSTRAINT "matches_user_id_job_id_unique" UNIQUE("user_id","job_id");
