@@ -15,6 +15,13 @@
       "when": 1773423240276,
       "tag": "0001_worthless_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773489660135,
+      "tag": "0002_parallel_deathbird",
+      "breakpoints": true
     }
   ]
 }

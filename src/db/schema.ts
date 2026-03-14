@@ -7,6 +7,7 @@ import {
   timestamp,
   vector,
   unique,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -24,6 +25,8 @@ export const resumes = pgTable("resumes", {
   s3Key: text("s3_key").notNull(),
   status: text("status").default("pending"), // pending | ready | failed
   skills: jsonb("skills").$type<string[]>(),
+  experience: integer("experience"),
+  roles: jsonb("roles").$type<string[]>(),
   techStack: jsonb("tech_stack").$type<string[]>(),
   seniority: text("seniority"),
   embedding: vector("embedding", { dimensions: 1536 }),
@@ -71,5 +74,5 @@ export const matches = pgTable(
     skillsDelta: jsonb("skills_delta").$type<string[]>(),
     createdAt: timestamp("created_at").defaultNow(),
   },
-  (t) => [unique().on(t.userId, t.jobId)]
+  (t) => [unique().on(t.userId, t.jobId)],
 );

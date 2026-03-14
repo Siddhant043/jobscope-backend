@@ -38,7 +38,7 @@ resumeRouter.post(
       }
       if (!ALLOWED_MIMES.includes(file.mimetype)) {
         throw new ValidationError(
-          "Invalid file type. Only PDF and DOCX are allowed."
+          "Invalid file type. Only PDF and DOCX are allowed.",
         );
       }
       const userId = req.userId!;
@@ -55,7 +55,7 @@ resumeRouter.post(
     } catch (e) {
       next(e);
     }
-  }
+  },
 );
 
 resumeRouter.get("/status", async (req: AuthRequest, res, next) => {
@@ -69,6 +69,8 @@ resumeRouter.get("/status", async (req: AuthRequest, res, next) => {
         status: true,
         skills: true,
         techStack: true,
+        experience: true,
+        roles: true,
         seniority: true,
         createdAt: true,
       },
@@ -77,7 +79,10 @@ resumeRouter.get("/status", async (req: AuthRequest, res, next) => {
       res.json(null);
       return;
     }
-    res.json(latest);
+    res.json({
+      ...latest,
+      experience: latest.experience ?? 0,
+    });
   } catch (e) {
     next(e);
   }
@@ -94,5 +99,5 @@ resumeRouter.get(
     } catch (e) {
       next(e);
     }
-  }
+  },
 );

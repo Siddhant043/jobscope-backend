@@ -6,7 +6,10 @@ import { db, pool } from "../db/index.js";
 import { resumes } from "../db/schema.js";
 import { getBuffer } from "../storage/s3.js";
 import { extractResumeText } from "../lib/extractText.js";
-import { extractResumeStructured } from "../agents/resumeAgent.js";
+import {
+  extractResumeStructured,
+  computeExperienceYears,
+} from "../agents/resumeAgent.js";
 import { computeEmbedding } from "../lib/embeddings/index.js";
 import type { ParseJobData } from "../queue/queues.js";
 import { logger } from "../lib/logger.js";
@@ -24,6 +27,9 @@ const worker = new Worker<ParseJobData>(
     const buffer = await getBuffer(s3Key);
     const rawText = await extractResumeText(buffer, s3Key);
     const extracted = await extractResumeStructured(rawText);
+    const experienceYears = computeExperienceYears(extracted.workHistory);
+    const experience =
+      Number.isFinite(experienceYears) ? Math.round(experienceYears) : 0;
     const embedding = await computeEmbedding(rawText);
 
     await db
@@ -32,6 +38,8 @@ const worker = new Worker<ParseJobData>(
         skills: extracted.skills,
         techStack: extracted.techStack,
         seniority: extracted.seniority,
+        experience,
+        roles: extracted.roles,
         embedding,
         status: "ready",
       })

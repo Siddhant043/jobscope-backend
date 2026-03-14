@@ -21,11 +21,10 @@ const envWithDefaults = isDev
       AWS_SECRET_ACCESS_KEY:
         process.env.AWS_SECRET_ACCESS_KEY || "dev-placeholder",
       S3_BUCKET: process.env.S3_BUCKET || "jobscope-dev-bucket",
-      OLLAMA_BASE_URL:
-        process.env.OLLAMA_BASE_URL || "http://localhost:11434",
-      OLLAMA_MODEL: process.env.OLLAMA_MODEL || "qwen3.5",
+      OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL || "gpt-oss",
       OLLAMA_EMBEDDING_MODEL:
-        process.env.OLLAMA_EMBEDDING_MODEL || "nomic-embed-text",
+        process.env.OLLAMA_EMBEDDING_MODEL || "qwen3-embedding",
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     }
   : process.env;

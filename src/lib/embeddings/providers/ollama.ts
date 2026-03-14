@@ -10,7 +10,7 @@ export const OLLAMA_EMBEDDING_DIM = 1536;
  */
 export function createEmbeddings(): OllamaEmbeddings {
   const baseUrl = config.OLLAMA_BASE_URL ?? "http://localhost:11434";
-  const model = config.OLLAMA_EMBEDDING_MODEL ?? "nomic-embed-text";
+  const model = config.OLLAMA_EMBEDDING_MODEL ?? "qwen3-embedding";
   return new OllamaEmbeddings({
     baseUrl,
     model,
