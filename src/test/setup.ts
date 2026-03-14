@@ -5,6 +5,7 @@ vi.mock("../lib/config.js", () => ({
     DATABASE_URL: "postgresql://user:pass@localhost:5432/test",
     REDIS_URL: "redis://localhost:6379",
     JWT_SECRET: "a".repeat(32),
+    ANTHROPIC_API_KEY: "sk-ant-test",
     OPENAI_API_KEY: "sk-test",
     AWS_REGION: "us-east-1",
     AWS_ACCESS_KEY_ID: "test",

@@ -11,16 +11,16 @@ import { getRedis } from "../lib/redis.js";
 import { ValidationError } from "../lib/errors.js";
 
 const SALT_ROUNDS = 12;
-const ACCESS_EXPIRY = "15m";
+const ACCESS_EXPIRY = "90d";
 const REFRESH_TTL_DAYS = 30;
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(1),
 });
 
@@ -33,11 +33,9 @@ const logoutSchema = z.object({
 });
 
 function signAccessToken(userId: string): string {
-  return jwt.sign(
-    { sub: userId },
-    config.JWT_SECRET,
-    { expiresIn: ACCESS_EXPIRY }
-  );
+  return jwt.sign({ sub: userId }, config.JWT_SECRET, {
+    expiresIn: ACCESS_EXPIRY,
+  });
 }
 
 export const authRouter = Router();
@@ -80,7 +78,7 @@ authRouter.post("/login", async (req, res, next) => {
       `refresh:${refreshToken}`,
       user.id,
       "EX",
-      REFRESH_TTL_DAYS * 24 * 60 * 60
+      REFRESH_TTL_DAYS * 24 * 60 * 60,
     );
     res.json({
       token,

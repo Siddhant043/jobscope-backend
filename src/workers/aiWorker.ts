@@ -5,8 +5,12 @@ import { getRedis } from "../lib/redis.js";
 import { db, pool } from "../db/index.js";
 import { jobs, resumes, matches } from "../db/schema.js";
 import { extractJobStructured } from "../agents/jobAgent.js";
-import { computeEmbedding } from "../lib/embeddings.js";
-import { cosineSimilarity, keywordOverlap, hybridScore } from "../lib/scoring.js";
+import { computeEmbedding } from "../lib/embeddings/index.js";
+import {
+  cosineSimilarity,
+  keywordOverlap,
+  hybridScore,
+} from "../lib/scoring.js";
 import type { AiJobData } from "../queue/queues.js";
 import { logger } from "../lib/logger.js";
 
@@ -14,7 +18,11 @@ const worker = new Worker<AiJobData>(
   "ai",
   async (job) => {
     const { jobId } = job.data;
-    logger.info("AI job started", { jobId: job.id, queue: "ai", dataJobId: jobId });
+    logger.info("AI job started", {
+      jobId: job.id,
+      queue: "ai",
+      dataJobId: jobId,
+    });
 
     const [jobRow] = await db
       .select()
@@ -49,7 +57,8 @@ const worker = new Worker<AiJobData>(
       .where(and(eq(resumes.status, "ready"), isNotNull(resumes.embedding)));
     // Filter to rows that actually have embedding (non-null)
     const withEmbedding = readyResumes.filter(
-      (r) => r.embedding && Array.isArray(r.embedding) && r.embedding.length > 0
+      (r) =>
+        r.embedding && Array.isArray(r.embedding) && r.embedding.length > 0,
     ) as { userId: string; embedding: number[]; skills: string[] | null }[];
 
     const jobSkills = extracted.skills ?? [];
@@ -62,8 +71,8 @@ const worker = new Worker<AiJobData>(
       const skillsDelta = jobSkills.filter(
         (s) =>
           !(r.skills ?? []).some(
-            (rs) => rs.trim().toLowerCase() === s.trim().toLowerCase()
-          )
+            (rs) => rs.trim().toLowerCase() === s.trim().toLowerCase(),
+          ),
       );
       await db
         .insert(matches)
@@ -79,11 +88,15 @@ const worker = new Worker<AiJobData>(
         });
       await redis.publish(
         "jobs:new",
-        JSON.stringify({ userId: r.userId, count: 1 })
+        JSON.stringify({ userId: r.userId, count: 1 }),
       );
     }
 
-    logger.info("AI job finished", { jobId: job.id, queue: "ai", dataJobId: jobId });
+    logger.info("AI job finished", {
+      jobId: job.id,
+      queue: "ai",
+      dataJobId: jobId,
+    });
   },
   {
     connection: {
@@ -91,7 +104,7 @@ const worker = new Worker<AiJobData>(
       port: parseInt(new URL(config.REDIS_URL).port || "6379", 10),
     },
     concurrency: 5,
-  }
+  },
 );
 
 worker.on("failed", (job, err) => {

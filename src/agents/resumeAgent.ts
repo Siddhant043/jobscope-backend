@@ -1,6 +1,5 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { z } from "zod";
-import { config } from "../lib/config.js";
+import { getChatModel } from "../lib/llm/getChatModel.js";
 
 const OUTPUT_SCHEMA = z.object({
   skills: z.array(z.string()),
@@ -18,11 +17,8 @@ export async function extractResumeStructured(
 ): Promise<ResumeExtraction> {
   const truncated =
     rawText.length > MAX_CHARS ? rawText.slice(0, MAX_CHARS) : rawText;
-  const model = new ChatOpenAI({
-    modelName: "gpt-4o-mini",
-    openAIApiKey: config.OPENAI_API_KEY,
-    temperature: 0,
-  }).withStructuredOutput(OUTPUT_SCHEMA);
+  const baseModel = await getChatModel();
+  const model = baseModel.withStructuredOutput(OUTPUT_SCHEMA);
 
   const result = await model.invoke([
     {

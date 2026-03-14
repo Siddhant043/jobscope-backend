@@ -1,7 +1,7 @@
 import type { JobScraper } from "./interface.js";
-import { PlaywrightScraper } from "./playwrightScraper";
-import { CheerioScraper } from "./cheerioScraper";
-import { ApiScraper } from "./apiScraper";
+import { PlaywrightScraper } from "./playwrightScraper.js";
+import { CheerioScraper } from "./cheerioScraper.js";
+import { ApiScraper } from "./apiScraper.js";
 
 const LINKEDIN = /linkedin\.com/i;
 const WELLFOUND = /wellfound\.com/i;

@@ -1,5 +1,5 @@
 import { defineConfig } from "drizzle-kit";
-import { config } from "./src/lib/config.js";
+import { config } from "./src/lib/config";
 
 export default defineConfig({
   dialect: "postgresql",
