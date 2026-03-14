@@ -33,15 +33,26 @@ const worker = new Worker<ScrapeJobData & { type?: string }>(
     const { sourceId, url } = job.data;
     logger.info("Scrape job started", { jobId: job.id, queue: "scrape", sourceId });
 
+    await db
+      .update(sources)
+      .set({ status: "processing" })
+      .where(eq(sources.id, sourceId));
+
     const scraper = detectScraper(url);
     const rawJobs = await scraper.scrape(url);
+
     const redis = getRedis();
+    let insertedCount = 0;
+    let dedupSkipped = 0;
 
     for (const rj of rawJobs) {
       const hash = urlHash(url, rj.company, rj.title);
       const dedupKey = `dedup:${hash}`;
       const exists = await redis.get(dedupKey);
-      if (exists) continue;
+      if (exists) {
+        dedupSkipped += 1;
+        continue;
+      }
 
       const [inserted] = await db
         .insert(jobs)
@@ -57,6 +68,7 @@ const worker = new Worker<ScrapeJobData & { type?: string }>(
         })
         .returning({ id: jobs.id });
       if (inserted) {
+        insertedCount += 1;
         await redis.set(dedupKey, "1", "EX", DEDUP_TTL_SEC);
         await addAiJob({ jobId: inserted.id });
       }
@@ -64,7 +76,7 @@ const worker = new Worker<ScrapeJobData & { type?: string }>(
 
     await db
       .update(sources)
-      .set({ lastScrapedAt: new Date() })
+      .set({ lastScrapedAt: new Date(), status: "completed" })
       .where(eq(sources.id, sourceId));
 
     logger.info("Scrape job finished", { jobId: job.id, queue: "scrape", sourceId });
@@ -85,6 +97,13 @@ worker.on("failed", (job, err) => {
     error: err?.message,
     sourceId: job?.data?.sourceId,
   });
+  const sourceId = job?.data?.sourceId;
+  if (sourceId) {
+    db.update(sources)
+      .set({ status: "failed" })
+      .where(eq(sources.id, sourceId))
+      .catch((e) => logger.error("Failed to set source status to failed", { error: e }));
+  }
 });
 
 worker.on("error", (err) => {

@@ -40,12 +40,13 @@ export const sources = pgTable("sources", {
     .notNull(),
   url: text("url").notNull(),
   platform: text("platform").notNull(),
+  status: text("status").default("processing"), // processing | completed | failed
   lastScrapedAt: timestamp("last_scraped_at"),
 });
 
 export const jobs = pgTable("jobs", {
   id: uuid("id").primaryKey().defaultRandom(),
-  sourceId: uuid("source_id").references(() => sources.id),
+  sourceId: uuid("source_id").references(() => sources.id, { onDelete: "set null" }),
   title: text("title").notNull(),
   company: text("company").notNull(),
   location: text("location"),

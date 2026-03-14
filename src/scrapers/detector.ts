@@ -2,6 +2,7 @@ import type { JobScraper } from "./interface.js";
 import { PlaywrightScraper } from "./playwrightScraper.js";
 import { CheerioScraper } from "./cheerioScraper.js";
 import { ApiScraper } from "./apiScraper.js";
+import { RemoteOkScraper } from "./remoteokScraper.js";
 
 const LINKEDIN = /linkedin\.com/i;
 const WELLFOUND = /wellfound\.com/i;
@@ -19,14 +20,18 @@ export function detectPlatform(url: string): string {
 const playwrightScraper = new PlaywrightScraper();
 const cheerioScraper = new CheerioScraper();
 const apiScraper = new ApiScraper();
+const remoteOkScraper = new RemoteOkScraper();
 
 export function detectScraper(url: string): JobScraper {
   const platform = detectPlatform(url);
-  if (platform === "linkedin" || platform === "wellfound") {
+  if (platform === "linkedin") {
     return playwrightScraper;
   }
   if (platform === "ycombinator") {
     return apiScraper;
+  }
+  if (platform === "remoteok") {
+    return remoteOkScraper;
   }
   return cheerioScraper;
 }

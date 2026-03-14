@@ -13,7 +13,7 @@ export class CheerioScraper implements JobScraper {
     });
     const $ = cheerio.load(response.body);
     const jobs: RawJob[] = [];
-    $("tr.job, .job-listing, [data-job], .job, .position").each((_, el) => {
+    $("tr.job, .job-listing, [data-job], .job, .position, [class*='job'], [class*='Job'], [data-testid*='job'], [data-testid*='listing'], article").each((_, el) => {
       const $el = $(el);
       const title =
         $el.find(".title, .job-title, h2, h3, a.job").first().text().trim() ||

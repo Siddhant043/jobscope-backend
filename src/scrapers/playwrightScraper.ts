@@ -6,11 +6,17 @@ export class PlaywrightScraper implements JobScraper {
     const browser = await chromium.launch({ headless: true });
     try {
       const page = await browser.newPage();
-      await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page
+        .waitForSelector(
+          "[data-job-id], [data-job-card], .job-card, .jobs-list__item, [class*='job'], article[class*='job'], [data-testid*='job'], [data-testid*='listing']",
+          { timeout: 15000 }
+        )
+        .catch(() => {});
       const jobs = await page.evaluate(() => {
         const results: RawJob[] = [];
         const cards = document.querySelectorAll(
-          "[data-job-id], [data-job-card], .job-card, .jobs-list__item, [class*='job']"
+          "[data-job-id], [data-job-card], .job-card, .jobs-list__item, [class*='job'], [class*='Job'], [data-testid*='job'], [data-testid*='listing']"
         );
         cards.forEach((el) => {
           const titleEl =

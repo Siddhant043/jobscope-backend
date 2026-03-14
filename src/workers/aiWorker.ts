@@ -18,6 +18,7 @@ const worker = new Worker<AiJobData>(
   "ai",
   async (job) => {
     const { jobId } = job.data;
+
     logger.info("AI job started", {
       jobId: job.id,
       queue: "ai",
